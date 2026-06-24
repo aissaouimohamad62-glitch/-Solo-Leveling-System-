@@ -1,0 +1,476 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Solo Leveling | نظام العاهل - مواقيت الصلاة</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@300;400;600;700;900&family=Rajdhani:wght@500;600;700&family=Share+Tech+Mono&display=swap" rel="stylesheet">
+    <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.6.0/dist/confetti.browser.min.js"></script>
+    
+    <style>
+        :root {
+            --sys-cyan: #00f0ff; /* سيتم استبدال هذا برمجياً عند تفعيل هالة جديدة */
+            --sys-cyan-glow: rgba(0, 240, 255, 0.6);
+            --sys-purple: #9d4edd;
+            --sys-bg-dark: #02040a;
+            --sys-panel: rgba(5, 10, 25, 0.85);
+            --sys-border: rgba(0, 240, 255, 0.3);
+            --danger-red: #e11d48;
+            --transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+
+        body {
+            font-family: 'Cairo', sans-serif;
+            background-color: var(--sys-bg-dark);
+            background-image: 
+                radial-gradient(circle at 15% 50%, var(--sys-cyan-glow) 0%, transparent 25%),
+                radial-gradient(circle at 85% 30%, rgba(157, 78, 221, 0.2) 0%, transparent 25%);
+            color: #e2e8f0;
+            min-height: 100vh;
+            overflow-x: hidden;
+            background-attachment: fixed;
+        }
+
+        .sys-font { font-family: 'Rajdhani', sans-serif; letter-spacing: 0.05em; }
+
+        .sl-panel {
+            background: var(--sys-panel);
+            backdrop-filter: blur(16px);
+            border: 2px solid var(--sys-border);
+            box-shadow: 0 0 25px rgba(0, 240, 255, 0.15), inset 0 0 15px rgba(0, 240, 255, 0.1);
+            position: relative;
+        }
+
+        .sl-panel::before, .sl-panel::after {
+            content: ''; position: absolute; width: 20px; height: 20px; pointer-events: none;
+        }
+        .sl-panel::before { top: -2px; left: -2px; border-top: 3px solid var(--sys-cyan); border-left: 3px solid var(--sys-cyan); }
+        .sl-panel::after { bottom: -2px; right: -2px; border-bottom: 3px solid var(--sys-cyan); border-right: 3px solid var(--sys-cyan); }
+
+        .compass-container {
+            width: 140px; height: 140px;
+            border: 2px dashed var(--sys-cyan);
+            border-radius: 50%;
+            margin: 0 auto;
+            position: relative;
+            box-shadow: 0 0 20px var(--sys-cyan-glow);
+            transition: transform 0.5s ease-out;
+        }
+
+        .compass-arrow {
+            position: absolute;
+            top: 10px; left: calc(50% - 6px);
+            width: 12px; height: 60px;
+            background: var(--sys-cyan);
+            clip-path: polygon(50% 0%, 0% 100%, 100% 100%);
+            box-shadow: 0 0 15px var(--sys-cyan);
+        }
+
+        .center-dot {
+            position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%);
+            width: 12px; height: 12px;
+            background: white; border-radius: 50%;
+            box-shadow: 0 0 10px white;
+        }
+
+        /* Toast Notifications */
+        #toastContainer { position: fixed; top: 20px; right: 20px; z-index: 9999; display: flex; flex-direction: column; gap: 10px; pointer-events: none; }
+        .toast { pointer-events: auto; padding: 12px 20px; background: rgba(2, 4, 10, 0.95); border-right: 4px solid var(--sys-cyan); box-shadow: 0 0 15px var(--sys-cyan-glow); color: white; font-weight: bold; animation: slideIn 0.3s ease-out; transition: opacity 0.3s; }
+        @keyframes slideIn { from { transform: translateX(100%); opacity: 0; } to { transform: translateX(0); opacity: 1; } }
+
+        .reward-btn { transition: var(--transition); }
+        .reward-btn:hover:not(:disabled) { transform: translateY(-2px); box-shadow: 0 0 15px var(--sys-cyan-glow); }
+        .reward-btn:disabled { opacity: 0.4; cursor: not-allowed; filter: grayscale(1); }
+        
+        .prayer-item.next-prayer {
+            background: rgba(0, 240, 255, 0.1);
+            border-right: 3px solid var(--sys-cyan);
+        }
+    </style>
+</head>
+<body class="p-4 md:p-8 flex items-center justify-center">
+
+    <div id="toastContainer"></div>
+
+    <div class="sl-panel w-full max-w-2xl p-6 animate-system-pop">
+        
+        <div class="flex flex-wrap justify-between items-center mb-8 border-b border-[var(--sys-border)] pb-4">
+        <nav id="sovereign-nav" class="flex flex-wrap gap-3 justify-center md:justify-start items-center p-4 bg-slate-950/60 border border-slate-850/50 backdrop-blur-md rounded-lg shadow-[inset_0_0_15px_rgba(0,0,0,0.8)] my-4 select-none">
+    
+    <a href="index11.html" class="nav-item px-4 py-2.5 text-xs font-mono rounded font-bold transition-all duration-300 ease-out flex items-center gap-1.5 border border-slate-800 bg-slate-900/40 text-slate-400 hover:text-[var(--sys-cyan)] hover:border-[var(--sys-cyan)] hover:shadow-[0_0_12px_rgba(0,240,255,0.2)]">
+        <span>🏠</span> <span>DASHBOARD</span>
+    </a>
+
+    <a href="active-quests.html" class="nav-item px-4 py-2.5 text-xs font-mono rounded font-bold transition-all duration-300 ease-out flex items-center gap-1.5 border border-slate-800 bg-slate-900/40 text-slate-400 hover:text-[var(--sys-cyan)] hover:border-[var(--sys-cyan)] hover:shadow-[0_0_12px_rgba(0,240,255,0.2)]">
+        <span>⚔️</span> <span>ACTIVE QUESTS</span>
+    </a>
+
+    <a href="brain-stats.html" class="nav-item px-4 py-2.5 text-xs font-mono rounded font-bold transition-all duration-300 ease-out flex items-center gap-1.5 border border-slate-800 bg-slate-900/40 text-slate-400 hover:text-[var(--sys-cyan)] hover:border-[var(--sys-cyan)] hover:shadow-[0_0_12px_rgba(0,240,255,0.2)]">
+        <span>🧠</span> <span>BRAIN STATS</span>
+    </a>
+
+    <a href="dungeons.html" class="nav-item px-4 py-2.5 text-xs font-mono rounded font-bold transition-all duration-300 ease-out flex items-center gap-1.5 border border-slate-800 bg-slate-900/40 text-slate-400 hover:text-[var(--sys-cyan)] hover:border-[var(--sys-cyan)] hover:shadow-[0_0_12px_rgba(0,240,255,0.2)]">
+        <span>🌋</span> <span>DUNGEONS</span>
+    </a>
+
+    
+    <a href="index99.html" class="nav-item px-4 py-2.5 text-xs font-mono rounded font-bold transition-all duration-300 ease-out flex items-center gap-1.5 border border-slate-800 bg-slate-900/40 text-slate-400 hover:text-[var(--sys-cyan)] hover:border-[var(--sys-cyan)] hover:shadow-[0_0_12px_rgba(0,240,255,0.2)]">
+        <span>🕋</span> <span>PRAYER REWARDS</span>
+    </a>
+
+    <a href="ppo.html" class="nav-item px-4 py-2.5 text-xs font-mono rounded font-bold transition-all duration-300 ease-out flex items-center gap-1.5 border border-slate-800 bg-slate-900/40 text-slate-400 hover:text-[var(--sys-cyan)] hover:border-[var(--sys-cyan)] hover:shadow-[0_0_12px_rgba(0,240,255,0.2)]">
+        <span>📖</span> <span>CELESTIAL QURAN</span>
+    </a>
+
+    <a href="sovereign-shop.html" class="nav-item px-4 py-2.5 text-xs font-mono rounded font-bold transition-all duration-300 ease-out flex items-center gap-1.5 border border-slate-800 bg-slate-900/40 text-slate-400 hover:text-[var(--sys-cyan)] hover:border-[var(--sys-cyan)] hover:shadow-[0_0_12px_rgba(0,240,255,0.2)]">
+        <span>🛒</span> <span>SOVEREIGN SHOP</span>
+    </a>
+
+    <a href="operational-charter.html" class="nav-item px-4 py-2.5 text-xs font-mono rounded font-bold transition-all duration-300 ease-out flex items-center gap-1.5 border border-slate-800 bg-slate-900/40 text-slate-400 hover:text-[var(--sys-cyan)] hover:border-[var(--sys-cyan)] hover:shadow-[0_0_12px_rgba(0,240,255,0.2)]">
+        <span>📜</span> <span>CHARTER</span>
+    </a>
+
+    <a href="monarch-ai.html" class="nav-item px-4 py-2.5 text-xs font-mono rounded font-bold transition-all duration-300 ease-out flex items-center gap-1.5 border border-slate-800 bg-slate-900/40 text-slate-400 hover:text-[var(--sys-cyan)] hover:border-[var(--sys-cyan)] hover:shadow-[0_0_12px_rgba(0,240,255,0.2)]">
+        <span>🤖</span> <span>MONARCH AI</span>
+    </a>
+
+    <a href="system-logs.html" class="nav-item px-4 py-2.5 text-xs font-mono rounded font-bold transition-all duration-300 ease-out flex items-center gap-1.5 border border-slate-800 bg-slate-900/40 text-slate-400 hover:text-[var(--sys-cyan)] hover:border-[var(--sys-cyan)] hover:shadow-[0_0_12px_rgba(0,240,255,0.2)]">
+        <span>📊</span> <span>SYSTEM LOGS</span>
+    </a>
+</nav>
+
+<script>
+    function activateCurrentNavigationTab() {
+        const currentPath = window.location.pathname;
+        const currentPage = currentPath.substring(currentPath.lastIndexOf('/') + 1) || 'index11.html';
+        const navLinks = document.querySelectorAll('#sovereign-nav .nav-item');
+
+        navLinks.forEach(link => {
+            const hrefAttr = link.getAttribute('href');
+            if (currentPage === hrefAttr) {
+                // تطبيق التنسيق النيوني المضيء الخاص بالصفحة النشطة حالياً
+                link.className = "nav-item px-4 py-2.5 text-xs font-mono rounded font-extrabold transition-all duration-300 bg-cyan-950/50 text-[var(--sys-cyan)] border border-[var(--sys-cyan)] shadow-[0_0_15px_rgba(0,240,255,0.35),inset_0_0_8px_rgba(0,240,255,0.2)] pointer-events-none";
+                // إضافة مؤشر بصري صغير قبل النص لتأكيد التفعيل الإحترافي
+                const textSpan = link.querySelector('span:last-child');
+                if(textSpan) {
+                    textSpan.innerHTML = `⚡ ${textSpan.innerHTML}`;
+                }
+            }
+        });
+    }
+    // تشغيل الفحص فوراً عند جاهزية مستندات الـ DOM
+    if (document.readyState === 'loading') {
+        document.addEventListener('DOMContentLoaded', activateCurrentNavigationTab);
+    } else {
+        activateCurrentNavigationTab();
+    }
+</script>
+            <div class="text-center mt-4 md:mt-0">
+                <div class="sys-font text-[10px] text-[var(--sys-cyan)] tracking-[0.3em] font-bold uppercase mb-1">[ SYSTEM . SPIRITUAL CORE ]</div>
+                <h1 class="text-2xl font-black text-white tracking-wider">مراقبة الطقوس السيادية</h1>
+            </div>
+            <div class="flex items-center gap-2 bg-slate-900/80 px-3 py-1.5 border border-slate-700 rounded">
+                <span class="text-xs text-slate-400 font-bold uppercase sys-font">GOLD</span>
+                <span id="player-gold-display" class="font-black text-yellow-400 sys-font text-sm">--</span>
+            </div>
+        </div>
+
+        <div class="bg-black/50 border border-[var(--sys-cyan)]/30 rounded-lg p-6 text-center mb-8 relative overflow-hidden">
+            <div class="absolute inset-0 bg-[var(--sys-cyan)]/5 animate-pulse pointer-events-none"></div>
+            <div id="next-prayer-name" class="sys-font text-sm text-slate-300 tracking-widest mb-2 font-bold">جاري المزامنة مع الإحداثيات...</div>
+            <div id="countdown" class="sys-font text-5xl md:text-6xl font-black text-[var(--sys-cyan)] drop-shadow-[0_0_15px_var(--sys-cyan-glow)] tabular-nums" dir="ltr">--:--:--</div>
+            <div id="location-display" class="text-xs text-slate-500 mt-3 font-mono">📍 تحديد الموقع قيد المعالجة</div>
+        </div>
+
+        <div class="space-y-3 mb-8" id="prayer-list-container">
+            </div>
+
+        <div class="border-t border-[var(--sys-border)] pt-8 text-center">
+            <div class="sys-font text-[12px] text-[var(--sys-purple)] tracking-[0.3em] font-bold uppercase mb-6">[ QIBLA . NAVIGATOR ]</div>
+            <div class="compass-container" id="compass">
+                <div class="compass-arrow"></div>
+                <div class="center-dot"></div>
+            </div>
+            <p class="text-xs text-slate-400 mt-6 font-bold">قم بتدوير الهاتف بوضع مسطح لتزامن البوصلة مع مسار القبلة.</p>
+        </div>
+    </div>
+
+    <audio id="athanAudio" src="https://media.blubrry.com/muslim_central_athan/audio.muslimcentral.com/athan/makkah.mp3"></audio>
+
+<script>
+    // ==========================================
+    // 1. SYSTEM SYNC & STATE (XP/GOLD)
+    // ==========================================
+    const PlayerStats = {
+        data: { level: 1, xp: 0, gold: 0 },
+        
+        init() {
+            const saved = localStorage.getItem('monarch_system_data');
+            if (saved) {
+                try { this.data = { ...this.data, ...JSON.parse(saved) }; } catch(e) {}
+            }
+            this.updateUI();
+        },
+
+        addRewards(xpAdd, goldAdd) {
+            this.data.xp += xpAdd;
+            this.data.gold += goldAdd;
+
+            // نظام رفع المستوى (نفس منطق Dashboard)
+            const xpNeeded = this.data.level * 100;
+            if (this.data.xp >= xpNeeded) {
+                this.data.level += 1;
+                this.data.xp -= xpNeeded;
+                this.data.ap = (this.data.ap || 0) + 3;
+                showToast(`⚡ LEVEL UP! أنت الآن في المستوى ${this.data.level}`);
+            }
+
+            // الدمج الآمن لحماية البيانات الأخرى
+            let systemData = JSON.parse(localStorage.getItem('monarch_system_data') || '{}');
+            systemData.xp = this.data.xp;
+            systemData.gold = this.data.gold;
+            systemData.level = this.data.level;
+            if(this.data.ap) systemData.ap = this.data.ap;
+            
+            localStorage.setItem('monarch_system_data', JSON.stringify(systemData));
+            this.updateUI();
+
+            // مؤثرات بصرية
+            if(typeof confetti === 'function') {
+                confetti({ particleCount: 100, spread: 70, origin: { y: 0.6 }, colors: ['#00f0ff', '#ffd700'] });
+            }
+        },
+
+        updateUI() {
+            const goldEl = document.getElementById('player-gold-display');
+            if(goldEl) goldEl.innerText = this.data.gold;
+        }
+    };
+
+    // ==========================================
+    // 2. PRAYER REWARD ENGINE
+    // ==========================================
+    const RewardsConfig = {
+        mosque: {
+            'Fajr': { xp: 35, gold: 25, name: 'الفجر' },
+            'Dhuhr': { xp: 27, gold: 20, name: 'الظهر' },
+            'Asr': { xp: 27, gold: 20, name: 'العصر' },
+            'Maghrib': { xp: 27, gold: 20, name: 'المغرب' },
+            'Isha': { xp: 35, gold: 25, name: 'العشاء' }
+        },
+        home: { xp: 2, gold: 3 }
+    };
+
+    function claimPrayer(prayerId, locationType) {
+        const today = new Date().toISOString().split('T')[0];
+        const key = `prayer_${prayerId}_${today}`;
+        
+        if (localStorage.getItem(key)) {
+            showToast('⚠️ تم تسجيل مكافأة هذه الصلاة مسبقاً لهذا اليوم.');
+            return;
+        }
+
+        let earnedXP = 0;
+        let earnedGold = 0;
+        let prayerName = RewardsConfig.mosque[prayerId].name;
+
+        if (locationType === 'mosque') {
+            earnedXP = RewardsConfig.mosque[prayerId].xp;
+            earnedGold = RewardsConfig.mosque[prayerId].gold;
+            showToast(`🕌 صلاة ${prayerName} في المسجد! تم اكتساب +${earnedXP} XP و +${earnedGold} G`);
+        } else {
+            earnedXP = RewardsConfig.home.xp;
+            earnedGold = RewardsConfig.home.gold;
+            showToast(`🏠 صلاة ${prayerName} في المنزل. تم اكتساب +${earnedXP} XP و +${earnedGold} G`);
+        }
+
+        PlayerStats.addRewards(earnedXP, earnedGold);
+        localStorage.setItem(key, 'claimed');
+        
+        // تحديث الواجهة لتعطيل الأزرار
+        renderPrayerList(window.currentTimings);
+    }
+
+    // ==========================================
+    // 3. PRAYER TIMES & API LOGIC
+    // ==========================================
+    const prayersDataList = [
+        { id: 'Fajr', ar: 'الفجر' },
+        { id: 'Dhuhr', ar: 'الظهر' },
+        { id: 'Asr', ar: 'العصر' },
+        { id: 'Maghrib', ar: 'المغرب' },
+        { id: 'Isha', ar: 'العشاء' }
+    ];
+
+    const MESSAAD_LAT = 34.1543;
+    const MESSAAD_LON = 3.5026;
+    let countdownInterval;
+
+    function renderPrayerList(timings) {
+        if(!timings) return;
+        window.currentTimings = timings;
+        const container = document.getElementById('prayer-list-container');
+        container.innerHTML = '';
+        const today = new Date().toISOString().split('T')[0];
+
+        prayersDataList.forEach(p => {
+            const isClaimed = localStorage.getItem(`prayer_${p.id}_${today}`) !== null;
+            
+            const html = `
+            <div class="prayer-item flex flex-col md:flex-row justify-between items-center p-3 md:p-4 bg-slate-900/40 border border-slate-800 rounded transition-all hover:border-[var(--sys-cyan)]/50 gap-3">
+                <div class="flex justify-between w-full md:w-auto md:gap-8 items-center">
+                    <span class="sys-font text-lg font-bold text-white">${p.ar}</span>
+                    <span class="sys-font text-xl font-black text-[var(--sys-cyan)] tracking-wider" dir="ltr">${timings[p.id]}</span>
+                </div>
+                <div class="flex gap-2 w-full md:w-auto">
+                    <button onclick="claimPrayer('${p.id}', 'mosque')" ${isClaimed ? 'disabled' : ''} class="reward-btn flex-1 md:flex-none px-4 py-1.5 bg-emerald-900/30 border border-emerald-500/50 text-emerald-400 text-xs font-bold rounded">
+                        🕌 مسجد (+${RewardsConfig.mosque[p.id].xp}XP)
+                    </button>
+                    <button onclick="claimPrayer('${p.id}', 'home')" ${isClaimed ? 'disabled' : ''} class="reward-btn flex-1 md:flex-none px-4 py-1.5 bg-slate-800/50 border border-slate-600 text-slate-300 text-xs font-bold rounded">
+                        🏠 منزل (+${RewardsConfig.home.xp}XP)
+                    </button>
+                </div>
+            </div>`;
+            container.innerHTML += html;
+        });
+    }
+
+    async function fetchPrayerData(lat, lon, isFallback = false) {
+        try {
+            const timestamp = Math.floor(Date.now() / 1000);
+            // Method 21: وزارة الشؤون الدينية والأوقاف الجزائرية
+            const res = await fetch(`https://api.aladhan.com/v1/timings/${timestamp}?latitude=${lat}&longitude=${lon}&method=21`);
+            const data = await res.json();
+            
+            const locText = isFallback ? "📍 إحداثيات مسعد - الجلفة (الوضع الافتراضي)" : "📍 إحداثيات الموقع الحالي (GPS مباشر)";
+            document.getElementById('location-display').innerText = locText;
+
+            renderPrayerList(data.data.timings);
+            startCountdown(data.data.timings);
+        } catch (e) {
+            showToast('❌ فشل الاتصال بقاعدة بيانات المواقيت السيرفر.');
+        }
+    }
+
+    function startCountdown(timings) {
+        clearInterval(countdownInterval);
+        countdownInterval = setInterval(() => {
+            const now = new Date();
+            const currentTime = now.getHours() * 60 + now.getMinutes() + now.getSeconds() / 60;
+            
+            let nextPrayer = null;
+            let minDiff = Infinity;
+
+            // إزالة التمييز السابق
+            document.querySelectorAll('.prayer-item').forEach(el => el.classList.remove('next-prayer'));
+
+            for (let p of prayersDataList) {
+                const [hours, minutes] = timings[p.id].split(':').map(Number);
+                const prayerTime = hours * 60 + minutes;
+                
+                let diff = prayerTime - currentTime;
+                if (diff < 0) diff += 24 * 60; 
+
+                if (diff < minDiff) {
+                    minDiff = diff;
+                    nextPrayer = p;
+                }
+            }
+
+            if (nextPrayer) {
+                document.getElementById('next-prayer-name').innerText = `الهدف الروحي القادم: صلاة ${nextPrayer.ar}`;
+                
+                const hrs = Math.floor(minDiff / 60);
+                const mins = Math.floor(minDiff % 60);
+                const secs = Math.floor((minDiff * 60) % 60);
+
+                document.getElementById('countdown').innerText = 
+                    `${hrs.toString().padStart(2, '0')}:${mins.toString().padStart(2, '0')}:${secs.toString().padStart(2, '0')}`;
+
+                // تفعيل الأذان عند الصفر
+                if (hrs === 0 && mins === 0 && secs === 0) {
+                    document.getElementById('athanAudio').play().catch(e => console.log("Auto-play blocked"));
+                    showToast(`[SYSTEM] حان الآن موعد أذان ${nextPrayer.ar}! تجهز للاتصال.`);
+                }
+            }
+        }, 1000);
+    }
+
+    // ==========================================
+    // 4. QIBLA COMPASS
+    // ==========================================
+    let qiblaDirection = 0;
+    function calculateQibla(lat, lon) {
+        const makkahLat = 21.422487, makkahLon = 39.826206;
+        const toRad = (deg) => (deg * Math.PI) / 180;
+        const toDeg = (rad) => (rad * 180) / Math.PI;
+
+        const phiK = toRad(makkahLat), lambdaK = toRad(makkahLon);
+        const phi = toRad(lat), lambda = toRad(lon);
+
+        const y = Math.sin(lambdaK - lambda);
+        const x = Math.cos(phi) * Math.tan(phiK) - Math.sin(phi) * Math.cos(lambdaK - lambda);
+        
+        qiblaDirection = (toDeg(Math.atan2(y, x)) + 360) % 360;
+    }
+
+    function initCompass() {
+        if (window.DeviceOrientationEvent) {
+            window.addEventListener('deviceorientation', (e) => {
+                let heading = e.webkitCompassHeading || (360 - e.alpha);
+                if (heading) {
+                    let finalAngle = qiblaDirection - heading;
+                    document.getElementById('compass').style.transform = `rotate(${finalAngle}deg)`;
+                }
+            });
+        }
+    }
+
+    // ==========================================
+    // UTILS & INIT
+    // ==========================================
+    function showToast(msg) {
+        const cont = document.getElementById('toastContainer');
+        const t = document.createElement('div');
+        t.className = 'toast sys-font text-sm';
+        t.innerHTML = msg;
+        cont.appendChild(t);
+        setTimeout(() => { t.style.opacity = '0'; setTimeout(() => t.remove(), 300); }, 4000);
+    }
+
+    document.addEventListener('DOMContentLoaded', () => {
+        // 1. تحميل الإحصائيات
+        PlayerStats.init();
+
+        // 2. تحميل الهالة السيادية (Global Aura System)
+        const savedAura = localStorage.getItem('sovereign_aura_color');
+        if(savedAura) {
+            document.documentElement.style.setProperty('--sys-cyan', savedAura);
+            document.documentElement.style.setProperty('--sys-cyan-glow', savedAura + '99');
+        }
+
+        // 3. تحديد الموقع وتشغيل النظام
+        if ("geolocation" in navigator) {
+            navigator.geolocation.getCurrentPosition(
+                (pos) => {
+                    const lat = pos.coords.latitude, lon = pos.coords.longitude;
+                    fetchPrayerData(lat, lon, false);
+                    calculateQibla(lat, lon);
+                    initCompass();
+                },
+                (err) => {
+                    fetchPrayerData(MESSAAD_LAT, MESSAAD_LON, true);
+                    calculateQibla(MESSAAD_LAT, MESSAAD_LON);
+                    initCompass();
+                }
+            );
+        } else {
+            fetchPrayerData(MESSAAD_LAT, MESSAAD_LON, true);
+            calculateQibla(MESSAAD_LAT, MESSAAD_LON);
+        }
+    });
+
+</script>
+</body>
+</html>
